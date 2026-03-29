@@ -13,6 +13,7 @@ import { useIncident, useSubTickets, useEvidence, useAgentLogs } from '@/hooks/u
 import { useSubmitApproval } from '@/hooks/useApprovals'
 import { useIncidentWebSocket } from '@/hooks/useIncidentWebSocket'
 import { useIncidentStore } from '@/store/incidentStore'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import {
   MOCK_INCIDENTS,
   MOCK_SUB_TICKETS,
@@ -96,6 +97,7 @@ export function IncidentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { advanceToPhase } = useDemo()
   const { triggerCelebration } = useIncidentStore()
+  usePageTitle(id ? `Incident ${id}` : 'Incident')
 
   // Real data hooks with polling
   const { data: liveIncident, isLoading, isError } = useIncident(id)

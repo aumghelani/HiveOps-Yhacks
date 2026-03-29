@@ -5,6 +5,7 @@ import { MOCK_PLAYBOOKS } from '@/mock'
 import { HiveLoader } from '@/components/hive/HiveLoader'
 import { HiveProgress } from '@/components/hive/HiveProgress'
 import { HivePattern } from '@/components/hive/HivePattern'
+import { usePageTitle } from '@/hooks/usePageTitle'
 import type { PlaybookFull } from '@/types'
 
 function PlaybookCard({ pb }: { pb: PlaybookFull }) {
@@ -68,6 +69,7 @@ function PlaybookCard({ pb }: { pb: PlaybookFull }) {
 }
 
 export function PlaybooksPage() {
+  usePageTitle('Playbooks')
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 600)

@@ -6,6 +6,7 @@ import { MOCK_AUDIT_ENTRIES } from '@/mock'
 import { HiveLoader } from '@/components/hive/HiveLoader'
 import { HivePulse } from '@/components/hive/HivePulse'
 import { HivePattern } from '@/components/hive/HivePattern'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 const agentColors: Record<string, string> = {
   triage: 'var(--blue)',
@@ -22,6 +23,7 @@ function timeAgo(iso: string): string {
 }
 
 export function AuditLogPage() {
+  usePageTitle('Audit Log')
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 600)

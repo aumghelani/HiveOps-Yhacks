@@ -5,8 +5,10 @@ import { MOCK_PATTERN_FAMILIES } from '@/mock'
 import { HiveLoader } from '@/components/hive/HiveLoader'
 import { HiveProgress } from '@/components/hive/HiveProgress'
 import { HivePattern } from '@/components/hive/HivePattern'
+import { usePageTitle } from '@/hooks/usePageTitle'
 
 export function MemoryBankPage() {
+  usePageTitle('Memory Bank')
   const [isLoading, setIsLoading] = useState(true)
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 600)
