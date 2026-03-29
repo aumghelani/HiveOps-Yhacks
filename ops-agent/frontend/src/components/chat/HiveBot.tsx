@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
 import { api } from '@/api/client'
+import { useIncidentStore } from '@/store/incidentStore'
 import { HivePulse } from '@/components/hive/HivePulse'
 import { HiveLoader } from '@/components/hive/HiveLoader'
 
@@ -63,10 +64,12 @@ const SLASH_COMMANDS: SlashCommand[] = [
   { command: '/clear', label: 'Clear', description: 'Clear chat history', message: '', requiresIncident: false },
 ]
 
+// Check URL path first, then fall back to the split-view selection in Zustand store
 function useCurrentIncidentId(): string | undefined {
   const location = useLocation()
+  const storeId = useIncidentStore(s => s.selectedIncidentId)
   const match = location.pathname.match(/\/incident\/([^/]+)/)
-  return match?.[1]
+  return match?.[1] ?? storeId ?? undefined
 }
 
 export function QueenBee() {

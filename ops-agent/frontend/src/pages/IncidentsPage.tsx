@@ -11,6 +11,7 @@ import { HivePattern } from '@/components/hive/HivePattern'
 import { DemoTriggerPanel } from '@/components/layout/DemoTriggerPanel'
 import { IncidentDetailEmbed } from '@/components/incident/IncidentDetailEmbed'
 import { usePageTitle } from '@/hooks/usePageTitle'
+import { useIncidentStore } from '@/store/incidentStore'
 import type { Incident, Severity, IncidentStatus } from '@/types'
 
 const severityColor: Record<Severity, { bg: string; text: string }> = {
@@ -121,8 +122,15 @@ function IncidentTile({
 export function IncidentsPage() {
   usePageTitle('Incidents')
   const { data: liveData = [], isLoading, isError } = useIncidents()
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedIdLocal] = useState<string | null>(null)
+  const storeSelect = useIncidentStore(s => s.selectIncident)
   const navigate = useNavigate()
+
+  // Sync local selection with Zustand store so QueenBee picks it up
+  const setSelectedId = (id: string | null) => {
+    setSelectedIdLocal(id)
+    storeSelect(id)
+  }
 
   const incidents = isError ? MOCK_INCIDENTS : liveData
   const active = incidents.filter(i => i.status !== 'resolved')
@@ -135,11 +143,10 @@ export function IncidentsPage() {
   )
 
   const handleTileClick = (id: string) => {
-    // On mobile, navigate to full page. On desktop, open split view.
     if (window.innerWidth < 768) {
       navigate(`/incident/${id}`)
     } else {
-      setSelectedId(prev => prev === id ? null : id)
+      setSelectedId(selectedId === id ? null : id)
     }
   }
 
