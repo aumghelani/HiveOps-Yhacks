@@ -95,6 +95,17 @@ export const api = {
       return data
     },
   },
+
+  chat: {
+    send: async (message: string, incidentId?: string, history: { role: string; content: string }[] = []): Promise<{ reply: string; context_used: boolean }> => {
+      const { data } = await http.post('/chat/', {
+        message,
+        incident_id: incidentId || null,
+        conversation_history: history,
+      })
+      return data
+    },
+  },
 }
 
 export default api

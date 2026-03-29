@@ -9,6 +9,7 @@ import { HivePulse } from '@/components/hive/HivePulse'
 import { HiveProgress } from '@/components/hive/HiveProgress'
 import { HiveOpsLogo } from '@/components/shared/HiveOpsLogo'
 import { MobileTabBar } from '@/components/layout/MobileTabBar'
+import { QueenBee } from '@/components/chat/HiveBot'
 import { MOCK_PATTERN_FAMILIES } from '@/mock'
 
 const navItems = [
@@ -145,6 +146,9 @@ export function AppLayout() {
           </motion.div>
         </AnimatePresence>
       </main>
+
+      {/* QueenBee chatbot */}
+      <QueenBee />
 
       {/* Mobile bottom tab bar */}
       <MobileTabBar />

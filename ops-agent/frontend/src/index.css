@@ -89,6 +89,10 @@ code, pre, .mono {
   flex-shrink: 0;
 }
 
+/* HiveBot visibility */
+.hivebot-desktop { display: flex; }
+.hivebot-mobile { display: none; }
+
 .mobile-tab-bar {
   display: none;
 }
@@ -97,6 +101,8 @@ code, pre, .mono {
   .sidebar-wrapper {
     display: none;
   }
+  .hivebot-desktop { display: none !important; }
+  .hivebot-mobile { display: flex; }
   .mobile-tab-bar {
     display: flex;
   }

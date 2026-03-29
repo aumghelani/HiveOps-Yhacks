@@ -3,6 +3,7 @@ import asyncio
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.routes import incidents, agents, approvals
+from app.api.routes import chat as chat_routes
 from app.api.pipeline import incidents_store, sub_tickets_store
 from app.utils.logger import get_logger
 
@@ -34,6 +35,7 @@ app.add_middleware(
 app.include_router(incidents.router, prefix="/api/incidents", tags=["incidents"])
 app.include_router(agents.router,    prefix="/api/agents",    tags=["agents"])
 app.include_router(approvals.router, prefix="/api/approvals", tags=["approvals"])
+app.include_router(chat_routes.router, prefix="/api/chat", tags=["chat"])
 
 
 @app.get("/health")
