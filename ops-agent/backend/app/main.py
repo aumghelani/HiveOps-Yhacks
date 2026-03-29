@@ -10,10 +10,21 @@ logger = get_logger("main")
 
 app = FastAPI(title="HiveOps API", version="0.1.0")
 
-# Allow Vite dev server
+# CORS — allow Vite dev server + any Vercel deployment
+import os
+allowed_origins = [
+    "http://localhost:5173",
+    "http://localhost:4173",
+]
+# Add production frontend URL if set
+if os.environ.get("FRONTEND_URL"):
+    allowed_origins.append(os.environ["FRONTEND_URL"])
+# Also allow all vercel.app subdomains for preview deploys
+allowed_origins.append("https://*.vercel.app")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],  # permissive for hackathon — lock down in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
