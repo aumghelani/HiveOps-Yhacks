@@ -80,7 +80,7 @@ export function DemoTriggerPanel() {
               style={{
                 position: 'absolute', top: '100%', right: 0, marginTop: 8,
                 width: 400, background: 'var(--surface)', border: '1px solid var(--border)',
-                borderRadius: 12, overflow: 'hidden', zIndex: 50,
+                borderRadius: 12, zIndex: 50,
                 boxShadow: '0 16px 48px rgba(0,0,0,0.3)',
               }}
             >
@@ -91,7 +91,7 @@ export function DemoTriggerPanel() {
                 <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>{SCENARIOS.length} available</span>
               </div>
 
-              <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+              <div className="hive-scrollbar" style={{ maxHeight: 420, overflowY: 'auto' }}>
                 {SCENARIOS.map((s, i) => (
                   <motion.button
                     key={s.key}

@@ -83,6 +83,27 @@ code, pre, .mono {
   min-height: 100vh;
 }
 
+/* Custom amber dot scrollbar — used on dropdowns and panels */
+.hive-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.hive-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hive-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--amber);
+  border-radius: 3px;
+  opacity: 0.6;
+}
+.hive-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--amber-bright);
+}
+/* Firefox */
+.hive-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--amber) transparent;
+}
+
 /* Sidebar visibility */
 .sidebar-wrapper {
   display: flex;
