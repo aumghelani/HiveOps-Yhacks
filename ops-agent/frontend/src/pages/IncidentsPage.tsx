@@ -1,7 +1,7 @@
 // Incidents page — Gmail-style split view on desktop, full-page navigation on mobile
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { MOCK_INCIDENTS } from '@/mock'
 import { useIncidents } from '@/hooks/useIncidents'
 import { HivePulse } from '@/components/hive/HivePulse'
@@ -154,10 +154,8 @@ export function IncidentsPage() {
     <div style={{ display: 'flex', height: '100%', overflow: 'hidden' }}>
       {/* Left: incident list */}
       <div style={{
-        width: selectedId ? '380px' : '100%',
-        minWidth: selectedId ? 340 : undefined,
-        maxWidth: selectedId ? 420 : 860,
-        transition: 'width 300ms ease, min-width 300ms ease',
+        width: selectedId ? 380 : '100%',
+        maxWidth: selectedId ? 380 : 860,
         overflowY: 'auto',
         padding: 24,
         flexShrink: 0,
@@ -213,91 +211,47 @@ export function IncidentsPage() {
         )}
       </div>
 
-      {/* Right: detail panel (desktop only, split view) */}
-      <AnimatePresence>
-        {selectedId && (
-          <motion.div
-            key={selectedId}
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: '100%', opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+      {/* Right: detail panel (desktop split view) — pure CSS transition, no Framer */}
+      {selectedId && (
+        <div
+          key={selectedId}
+          style={{
+            flex: 1, borderLeft: '1px solid var(--border)',
+            position: 'relative', background: 'var(--bg)',
+            display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          }}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setSelectedId(null)}
             style={{
-              flex: 1, overflow: 'hidden', borderLeft: '1px solid var(--border)',
-              position: 'relative', background: 'var(--bg)',
+              position: 'absolute', top: 16, right: 16, zIndex: 10,
+              width: 32, height: 32, borderRadius: '50%',
+              border: '1px solid var(--border)', background: 'var(--surface)',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--text-faint)', fontSize: 16, lineHeight: 1,
             }}
           >
-            {/* Hive dot burst on open */}
-            <HiveBurstOverlay />
+            ×
+          </button>
 
-            {/* Close button */}
-            <motion.button
-              onClick={() => setSelectedId(null)}
-              whileHover={{ scale: 1.1, background: 'var(--elevated)' }}
-              whileTap={{ scale: 0.9 }}
-              style={{
-                position: 'absolute', top: 16, right: 16, zIndex: 10,
-                width: 32, height: 32, borderRadius: '50%',
-                border: '1px solid var(--border)', background: 'var(--surface)',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: 'var(--text-faint)', fontSize: 16, lineHeight: 1,
-              }}
-            >
-              ×
-            </motion.button>
+          {/* Full-page link */}
+          <Link
+            to={`/incident/${selectedId}`}
+            style={{
+              position: 'absolute', top: 18, right: 56, zIndex: 10,
+              fontSize: 11, color: 'var(--amber)', textDecoration: 'none',
+              fontFamily: 'var(--font-mono)',
+            }}
+          >
+            Open full ↗
+          </Link>
 
-            {/* Full-page link */}
-            <Link
-              to={`/incident/${selectedId}`}
-              style={{
-                position: 'absolute', top: 18, right: 56, zIndex: 10,
-                fontSize: 11, color: 'var(--amber)', textDecoration: 'none',
-                fontFamily: 'var(--font-mono)',
-              }}
-            >
-              Open full ↗
-            </Link>
-
-            <div style={{ overflowY: 'auto', height: '100%' }}>
-              <IncidentDetailEmbed incidentId={selectedId} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-// Animated dot burst that plays once when the detail panel opens
-function HiveBurstOverlay() {
-  const dots = Array.from({ length: 12 }, (_, i) => {
-    const angle = (Math.PI * 2 * i) / 12
-    const distance = 60 + Math.random() * 40
-    return {
-      x: Math.cos(angle) * distance,
-      y: Math.sin(angle) * distance,
-      size: 2 + Math.random() * 3,
-      delay: i * 0.02,
-    }
-  })
-
-  return (
-    <div style={{
-      position: 'absolute', top: '50%', left: 0, width: 0, height: 0,
-      zIndex: 5, pointerEvents: 'none',
-    }}>
-      {dots.map((dot, i) => (
-        <motion.div
-          key={i}
-          initial={{ x: 0, y: 0, opacity: 0.6, scale: 1 }}
-          animate={{ x: dot.x, y: dot.y, opacity: 0, scale: 0 }}
-          transition={{ duration: 0.6, delay: dot.delay, ease: 'easeOut' }}
-          style={{
-            position: 'absolute', width: dot.size, height: dot.size,
-            borderRadius: '50%', background: 'var(--amber)',
-          }}
-        />
-      ))}
+          <div style={{ overflowY: 'auto', flex: 1 }}>
+            <IncidentDetailEmbed incidentId={selectedId} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
