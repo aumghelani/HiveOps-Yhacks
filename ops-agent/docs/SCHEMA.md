@@ -63,3 +63,14 @@ Optional tool call traces for debugging.
 ### get_stage1_matches(service, category, causal_sig, severity)
 Returns top 4 similar resolved incidents with weighted match_score.
 Weights: service=40, category=30, causal_sig=25, severity=5.
+
+## In-Memory Stores (Demo Mode)
+When Supabase credentials are not set, the backend uses in-memory Python dicts:
+- `incidents_store` — dict[incident_id, incident_dict]
+- `sub_tickets_store` — dict[sub_ticket_id, ticket_dict]
+- `agent_logs_store` — list[log_dict]
+- `sandbox_runs_store` — list[run_dict]
+- `approval_store` — list[approval_dict]
+- `pipeline_results` — dict[incident_id, agent_outputs]
+
+These are populated by the pipeline when an incident is triggered via webhook.

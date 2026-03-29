@@ -42,5 +42,23 @@
 ### [Post-Ch8] QueenBee mobile input hidden behind nav bar
 - **Symptom:** Chat input field overlapped by bottom navigation on mobile
 - **Cause:** Panel used bottom:0 which sits behind the 60px mobile nav bar
-- **Fix:** Used visualViewport API for dynamic height + safe-area-inset-bottom padding
+- **Fix:** CSS sets .queenbee-panel bottom:60px on mobile; removed visualViewport approach in favor of fixed CSS
+- **Date:** 2026-03-29
+
+### [Post-Ch8] Sidebar stretching with page content on Audit Log
+- **Symptom:** Sidebar grows longer than viewport when scrolling long audit log page
+- **Cause:** Sidebar had no fixed height constraint, grew with flex container
+- **Fix:** Set sidebar to height:100vh + overflow:hidden; only <main> scrolls
+- **Date:** 2026-03-29
+
+### [Post-Ch8] Mobile theme toggle overlapping nav bar
+- **Symptom:** Dark/light toggle button hidden behind bottom navigation on mobile
+- **Cause:** Toggle was inside the sidebar which is hidden on mobile
+- **Fix:** Added separate floating theme toggle button (bottom-left, above nav) visible only on mobile
+- **Date:** 2026-03-29
+
+### [Post-Ch8] DemoTriggerPanel showing double scrollbars
+- **Symptom:** Two scrollbar tracks visible inside the demo scenario dropdown
+- **Cause:** Outer container had overflow:hidden and inner div had overflowY:auto, both creating scroll contexts
+- **Fix:** Removed overflow:hidden from outer, single .hive-scrollbar class on inner with custom amber styling
 - **Date:** 2026-03-29

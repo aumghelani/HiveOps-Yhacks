@@ -11,9 +11,16 @@ If something breaks badly, run:
   git reset --hard <hash>
 
 ## Checkpoints
-(fill as chapters complete)
+- Prompt 0 scaffold complete
+- Ch 1-3 backend foundation complete
+- Ch 4 routes + pipeline complete
+- Ch 5-7 frontend complete
+- Ch 8 integration complete
+- Post-Ch8 polish: QueenBee, split view, deployment, mobile fixes
 
 ## Dangerous operations
 - Never delete migrations.sql — append only
 - Never rename Pydantic model fields without updating all routes that use them
 - Never change the Supabase table names — foreign keys will break
+- Never commit .env files with real API keys
+- The in-memory stores reset on backend restart — this is by design for demo mode

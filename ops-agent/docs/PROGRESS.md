@@ -14,7 +14,7 @@
   - [x] All Pydantic schemas (incident, agent_task, approval, memory, lava)
 - [x] Ch 2  — Lava client + agent prompts
   - [x] LavaClient singleton with chat(), chat_json(), chat_with_tools()
-  - [x] Model tier routing, retry, JSON parse fallback
+  - [x] Model tier routing (fast/default/strong), retry, JSON parse fallback
   - [x] Tool executor with 6 mocked tools
   - [x] All 6 agents: Orchestrator, Triage, RootCause, Remediation, Verification, ReviewerSummary
 - [x] Ch 3  — Memory layer (Hex + progressive disclosure)
@@ -23,77 +23,91 @@
 - [x] Ch 4  — Sandbox + API routes
   - [x] SandboxRunner with 4 mock scenarios
   - [x] pipeline.py — full mock agent orchestration
-  - [x] 17 API endpoints + WebSocket + SSE streaming
-  - [x] POST /api/chat/ — QueenBee chatbot endpoint
+  - [x] 18 API endpoints + WebSocket + SSE streaming
+  - [x] POST /api/chat/ — QueenBee chatbot endpoint with Lava + smart fallback
+  - [x] GET /api/incidents/{id}/stream/{agent} — SSE reasoning stream
   - [x] Full flow verified: webhook → pipeline → approval → resolved
 - [x] Ch 5  — Frontend types + store + hooks
   - [x] All types defined including ApprovalDecision
   - [x] Frontend mock data layer (src/mock/)
   - [x] DemoContext with phase management
   - [x] Zustand store (incidentStore) for UI state + split view selection
-  - [x] React Query hooks with polling + error backoff
+  - [x] React Query hooks with polling + error backoff (retry: false for fast fallback)
   - [x] WebSocket hook for live updates
   - [x] usePageTitle hook for dynamic browser tab titles
 - [x] Ch 6  — Frontend UI components
   - [x] Hive dot components (HivePulse, HiveLoader, HiveProgress, HivePattern, HiveDivider)
   - [x] HiveHoverDots — hover dot clusters on cards
   - [x] HiveButton — standard button with variants + loading
-  - [x] ThemeProvider, HiveOps logo with hexagon SVG "O"
+  - [x] ThemeProvider with class-based dark mode + CSS variables
+  - [x] HiveOps logo with hexagon SVG "O"
   - [x] SubTasksPanel with animated status indicators
   - [x] EvidenceDossier with 5 sections + progressive disclosure
-  - [x] ConfidenceTrajectory — pure SVG sparkline
+  - [x] ConfidenceTrajectory — pure SVG sparkline (no Chart.js)
   - [x] IncidentTimeline — Slack-style agent activity chat log
-  - [x] AgentReasoningStream — live typing effect via SSE
-  - [x] IncidentDetailEmbed — embeddable detail for split view
+  - [x] AgentReasoningStream — live typing effect via SSE with mock fallback
+  - [x] IncidentDetailEmbed — embeddable detail for split view panel
   - [x] MobileTabBar for responsive layout
-  - [x] AppLayout with sidebar enhancements
+  - [x] AppLayout with fixed-height sidebar + celebration overlays
+  - [x] Custom amber scrollbar (.hive-scrollbar class)
 - [x] Ch 7  — Frontend pages + routing
   - [x] IncidentsPage — Gmail-style split view on desktop, color-coded tiles
   - [x] IncidentDetailPage with pipeline, sub-tasks, confidence trajectory, timeline
   - [x] MemoryBankPage with pattern families and dot progress
   - [x] PlaybooksPage with expandable steps
   - [x] AuditLogPage with chronological activity
-  - [x] React Router with nested layout + page transitions
+  - [x] React Router with nested layout + AnimatePresence page transitions
   - [x] Light/dark mode fully working with CSS variables
-  - [x] Mobile bottom tab bar
+  - [x] Mobile bottom tab bar + floating theme toggle (bottom-left)
   - [x] Dynamic page titles (Incidents/Memory Bank/Playbooks/Audit Log — HiveOps)
-  - [x] HiveOps amber hexagon favicon
+  - [x] HiveOps amber hexagon favicon + meta theme-color
 - [x] Ch 8  — Integration + demo seed
-  - [x] Real API client (src/api/client.ts) with env-based URL
-  - [x] React Query hooks with live polling + error backoff (retry: false)
-  - [x] WebSocket hook for live incident updates
+  - [x] Real API client (src/api/client.ts) with env-based VITE_API_URL
+  - [x] React Query hooks with live polling + retry:false for instant mock fallback
+  - [x] WebSocket hook for live incident + sub-ticket updates
   - [x] All pages wired to real backend with mock fallback on error
-  - [x] DemoTriggerPanel with 7 scenario cards
+  - [x] DemoTriggerPanel with 7 scenario cards + custom amber scrollbar
   - [x] Approval controls wired to real backend
-  - [x] Celebration animation on approval
+  - [x] Celebration animation on approval (amber flash + resolution banner)
 - [x] Post-Ch 8 — Polish + Features
   - [x] QueenBee chatbot (Lava-powered, context-aware)
-    - [x] Backend: POST /api/chat/ with incident context injection
+    - [x] Backend: POST /api/chat/ with full incident context injection
     - [x] Smart fallback responses using in-memory data when Lava unavailable
-    - [x] Frontend: floating amber button → slide-in panel
-    - [x] Auto-detects incident from URL or split view selection (Zustand)
+    - [x] Frontend: floating amber hexagon button → slide-in panel from right
+    - [x] Auto-detects incident from URL path OR split view selection (Zustand store)
     - [x] Quick action chips (8 incident-specific, 6 general)
-    - [x] Slash commands (/summary, /rootcause, /approve, /risk, etc.)
-    - [x] Mobile keyboard handling via visualViewport API
-    - [x] Safe area padding for mobile nav bar
+    - [x] Slash commands (/summary, /rootcause, /approve, /risk, /agents, /similar, /fix, /blast, /help, /howto, /clear)
+    - [x] Mobile: panel stops above nav bar (bottom: 60px), safe-area padding
+    - [x] Input: fontSize 16 (prevents iOS zoom), enterKeyHint="send"
   - [x] Gmail-style split view on incidents page
-    - [x] List on left, detail panel slides in on right
-    - [x] Hive dot burst animation on panel open
-    - [x] Color-coded tiles (green=resolved, amber=awaiting, red=rejected, blue=investigating)
-  - [x] Vercel deployment config (vercel.json, env-based API URL)
-  - [x] Render deployment (.python-version pinned to 3.11)
-  - [x] CORS updated for production
-  - [x] Demo checklist (docs/DEMO_CHECKLIST.md)
+    - [x] List on left (380px), detail panel slides in on right with spring animation
+    - [x] Hive dot burst animation (12 amber dots radiate) on panel open
+    - [x] Color-coded tiles — left border + background tint per status:
+      - Green: resolved, approved
+      - Amber/Yellow: awaiting_approval, triage
+      - Blue: investigating
+      - Red: rejected, incoming
+    - [x] Selected tile highlighted with amber border
+    - [x] × close button + "Open full ↗" link on detail panel
+    - [x] Mobile: tiles navigate to full page instead of split view
+  - [x] Sidebar fixed at viewport height — never scrolls with page content
+  - [x] Mobile theme toggle — floating circle button (bottom-left, above nav bar)
+  - [x] Custom amber scrollbar on DemoTriggerPanel dropdown
+  - [x] Deployment
+    - [x] Vercel: frontend with vercel.json, VITE_API_URL env var
+    - [x] Render: backend with .python-version (3.11), CORS allow-all for hackathon
+    - [x] GoDaddy: hiveops.us domain with CNAME → Vercel
 
 ## Verification gates — ALL PASSED
 - Prompt 0: uvicorn starts, npm run dev starts, /health returns 200 ✓
 - Ch 1: migrations.sql complete, pydantic models import without error ✓
 - Ch 2: lava_client importable, all 6 agents importable ✓
 - Ch 3: memory_loader.load_stage_1() returns 4 mock incidents ✓
-- Ch 4: POST /api/incidents/webhook returns 202, pipeline runs ✓
+- Ch 4: POST /api/incidents/webhook returns 202, pipeline runs in background ✓
 - Ch 5: All hooks compile, store works ✓
 - Ch 6: All components render without prop errors ✓
 - Ch 7: All pages load, routing works, dark/light toggle works ✓
 - Ch 8: Full demo flow end-to-end with real API calls ✓
 - QueenBee: responds with incident context in split view + full page ✓
 - Build: npm run build — 0 TypeScript errors ✓
+- Deploy: Vercel + Render + GoDaddy all live ✓
