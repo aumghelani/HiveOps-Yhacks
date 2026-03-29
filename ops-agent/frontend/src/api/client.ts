@@ -7,8 +7,14 @@ import type {
   Incident, SubTicket, AgentLog, EvidencePackage, ApprovalDecision,
 } from '@/types'
 
+// In dev: Vite proxies /api to localhost:8000
+// In prod: VITE_API_URL env var points to the deployed backend
+const API_BASE = import.meta.env.VITE_API_URL
+  ? `${import.meta.env.VITE_API_URL}/api`
+  : '/api'
+
 const http = axios.create({
-  baseURL: '/api',
+  baseURL: API_BASE,
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000,
 })

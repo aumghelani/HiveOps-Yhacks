@@ -10,7 +10,11 @@ export function useIncidentWebSocket(incidentId: string | undefined) {
   const connect = useCallback(() => {
     if (!incidentId || failedRef.current) return
 
-    const ws = new WebSocket(`ws://localhost:8000/ws/incidents/${incidentId}`)
+    // In dev: localhost. In prod: use VITE_API_URL (swap http→ws)
+    const base = import.meta.env.VITE_API_URL
+      ? import.meta.env.VITE_API_URL.replace(/^http/, 'ws')
+      : 'ws://localhost:8000'
+    const ws = new WebSocket(`${base}/ws/incidents/${incidentId}`)
     wsRef.current = ws
 
     ws.onopen = () => console.debug(`[ws] connected incident=${incidentId}`)
