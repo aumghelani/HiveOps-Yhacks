@@ -24,7 +24,6 @@ export function AppLayout() {
   const { showResolutionBanner, showFlash } = useDemo()
   const location = useLocation()
 
-  // Live data from backend for sidebar status
   const { data: liveIncidents = [] } = useIncidents()
   const { data: pending = [] } = usePendingApprovals()
 
@@ -41,20 +40,19 @@ export function AppLayout() {
     pendingCount > 0 ? 'amber' :
     'green'
 
-  // Memory bank stats from mock data (pattern families are pre-seeded)
   const totalIncidents = MOCK_PATTERN_FAMILIES.reduce((s, pf) => s + pf.incident_count, 0)
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg)' }}>
-      {/* Sidebar — hidden on mobile via CSS class */}
+    <div style={{ display: 'flex', height: '100vh', background: 'var(--bg)', overflow: 'hidden' }}>
+      {/* Sidebar — fixed height, never scrolls */}
       <aside className="sidebar-wrapper" style={{
-        width: 224, flexDirection: 'column',
+        width: 224, flexDirection: 'column', height: '100vh',
         borderRight: '1px solid var(--border)', background: 'var(--surface)',
+        overflow: 'hidden', flexShrink: 0,
       }}>
         {/* Logo */}
         <div style={{ padding: '16px 16px 12px', borderBottom: '1px solid var(--border)' }}>
           <HiveOpsLogo size="md" />
-          {/* Agent status line */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8 }}>
             <HivePulse variant={pulseVariant} size={5} />
             <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{agentStatus}</span>
@@ -62,7 +60,7 @@ export function AppLayout() {
         </div>
 
         {/* Nav */}
-        <nav style={{ flex: 1, padding: '12px 8px' }}>
+        <nav style={{ flex: 1, padding: '12px 8px', overflow: 'hidden' }}>
           {navItems.map(item => (
             <NavLink
               key={item.to}
@@ -95,7 +93,6 @@ export function AppLayout() {
           <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
             Intelligence
           </p>
-          {/* Memory Bank fill */}
           <div style={{ marginBottom: 8 }}>
             <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4 }}>{totalIncidents} indexed incidents</p>
             <HiveProgress value={0.8} total={10} label="80% patterns indexed" size="sm" />
@@ -115,7 +112,7 @@ export function AppLayout() {
           <span style={{ fontSize: 10, color: 'var(--text-faint)' }}>Agents</span>
         </div>
 
-        {/* Theme toggle */}
+        {/* Theme toggle — desktop only */}
         <div style={{ padding: '8px 16px 12px', borderTop: '1px solid var(--border)' }}>
           <button
             onClick={toggleTheme}
@@ -132,8 +129,8 @@ export function AppLayout() {
         </div>
       </aside>
 
-      {/* Main content with page transitions */}
-      <main style={{ flex: 1, overflowY: 'auto', position: 'relative' }}>
+      {/* Main content — this is the only thing that scrolls */}
+      <main style={{ flex: 1, overflowY: 'auto', height: '100vh', position: 'relative' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -153,6 +150,23 @@ export function AppLayout() {
       {/* Mobile bottom tab bar */}
       <MobileTabBar />
 
+      {/* Mobile theme toggle — floating above nav bar, left side */}
+      <button
+        onClick={toggleTheme}
+        className="mobile-theme-toggle"
+        style={{
+          position: 'fixed', bottom: 72, left: 16, zIndex: 55,
+          width: 36, height: 36, borderRadius: '50%',
+          background: 'var(--surface)', border: '1px solid var(--border)',
+          cursor: 'pointer', fontSize: 14,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+        }}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? '☀️' : '🌙'}
+      </button>
+
       {/* Resolution celebration banner */}
       <AnimatePresence>
         {showResolutionBanner && (
@@ -168,7 +182,7 @@ export function AppLayout() {
               fontFamily: 'var(--font-display)', fontWeight: 600, color: '#fff', fontSize: 15,
             }}
           >
-            Resolution approved · Memory bank updated · INC-3038 resolved
+            Resolution approved · Memory bank updated
           </motion.div>
         )}
       </AnimatePresence>

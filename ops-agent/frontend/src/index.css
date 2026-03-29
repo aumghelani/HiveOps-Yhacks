@@ -92,6 +92,9 @@ code, pre, .mono {
 /* QueenBee: hide backdrop on desktop */
 .queenbee-backdrop { display: none; }
 
+/* Theme toggle: hidden on desktop (sidebar has its own), shown on mobile */
+.mobile-theme-toggle { display: none; }
+
 .mobile-tab-bar {
   display: none;
 }
@@ -113,6 +116,9 @@ code, pre, .mono {
   }
   .mobile-tab-bar {
     display: flex;
+  }
+  .mobile-theme-toggle {
+    display: flex !important;
   }
   main {
     padding-bottom: 72px !important;
