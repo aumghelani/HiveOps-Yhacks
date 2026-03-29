@@ -1,0 +1,11 @@
+# Claude Code
+.claude/
+.claude.json
+.clauderc
+CLAUDE.local.md
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*~
