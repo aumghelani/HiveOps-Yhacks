@@ -19,7 +19,6 @@ interface QuickAction {
   message: string
 }
 
-// Quick actions shown when viewing an incident
 const INCIDENT_ACTIONS: QuickAction[] = [
   { label: 'Summarize', icon: '📋', message: 'Give me a full summary of this incident' },
   { label: 'Root cause', icon: '🔍', message: 'What is the root cause of this incident?' },
@@ -31,7 +30,6 @@ const INCIDENT_ACTIONS: QuickAction[] = [
   { label: 'Blast radius', icon: '💥', message: 'What is the blast radius? Which services are affected?' },
 ]
 
-// Quick actions shown on the general screen (no incident)
 const GENERAL_ACTIONS: QuickAction[] = [
   { label: 'What is HiveOps?', icon: '⬡', message: 'What is HiveOps and how does it work?' },
   { label: 'How do agents work?', icon: '🤖', message: 'How do the HiveOps agents work? What does each one do?' },
@@ -41,35 +39,50 @@ const GENERAL_ACTIONS: QuickAction[] = [
   { label: 'SRE best practices', icon: '🎯', message: 'What are the best practices for incident response?' },
 ]
 
-// Slash commands
 interface SlashCommand {
   command: string
-  label: string
   description: string
   message: string
   requiresIncident: boolean
 }
 
 const SLASH_COMMANDS: SlashCommand[] = [
-  { command: '/summary', label: 'Summary', description: 'Full incident summary', message: 'Give me a full summary of this incident', requiresIncident: true },
-  { command: '/rootcause', label: 'Root Cause', description: 'What caused this', message: 'What is the root cause?', requiresIncident: true },
-  { command: '/approve', label: 'Approve?', description: 'Should I approve this fix?', message: 'Should I approve this fix? Assess the risk.', requiresIncident: true },
-  { command: '/risk', label: 'Risk', description: 'Risk assessment', message: 'What are the risks of this remediation?', requiresIncident: true },
-  { command: '/agents', label: 'Agents', description: 'Agent progress', message: 'What have the agents found so far?', requiresIncident: true },
-  { command: '/similar', label: 'Similar', description: 'Past similar incidents', message: 'Show me similar past incidents', requiresIncident: true },
-  { command: '/fix', label: 'Fix', description: 'Explain the proposed fix', message: 'Explain the proposed fix in simple terms', requiresIncident: true },
-  { command: '/blast', label: 'Blast', description: 'Blast radius', message: 'What is the blast radius?', requiresIncident: true },
-  { command: '/help', label: 'Help', description: 'What can QueenBee do?', message: 'What can you help me with?', requiresIncident: false },
-  { command: '/howto', label: 'How it works', description: 'How HiveOps works', message: 'How does HiveOps work end to end?', requiresIncident: false },
-  { command: '/clear', label: 'Clear', description: 'Clear chat history', message: '', requiresIncident: false },
+  { command: '/summary', description: 'Full incident summary', message: 'Give me a full summary of this incident', requiresIncident: true },
+  { command: '/rootcause', description: 'What caused this', message: 'What is the root cause?', requiresIncident: true },
+  { command: '/approve', description: 'Should I approve?', message: 'Should I approve this fix? Assess the risk.', requiresIncident: true },
+  { command: '/risk', description: 'Risk assessment', message: 'What are the risks of this remediation?', requiresIncident: true },
+  { command: '/agents', description: 'Agent progress', message: 'What have the agents found so far?', requiresIncident: true },
+  { command: '/similar', description: 'Past similar incidents', message: 'Show me similar past incidents', requiresIncident: true },
+  { command: '/fix', description: 'Explain the proposed fix', message: 'Explain the proposed fix in simple terms', requiresIncident: true },
+  { command: '/blast', description: 'Blast radius', message: 'What is the blast radius?', requiresIncident: true },
+  { command: '/help', description: 'What can QueenBee do?', message: 'What can you help me with?', requiresIncident: false },
+  { command: '/howto', description: 'How HiveOps works', message: 'How does HiveOps work end to end?', requiresIncident: false },
+  { command: '/clear', description: 'Clear chat history', message: '', requiresIncident: false },
 ]
 
-// Check URL path first, then fall back to the split-view selection in Zustand store
+// Check URL path first, then fall back to split-view selection in Zustand store
 function useCurrentIncidentId(): string | undefined {
   const location = useLocation()
   const storeId = useIncidentStore(s => s.selectedIncidentId)
   const match = location.pathname.match(/\/incident\/([^/]+)/)
   return match?.[1] ?? storeId ?? undefined
+}
+
+// Track visual viewport height for mobile keyboard handling
+function useViewportHeight() {
+  const [height, setHeight] = useState('100%')
+  useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => {
+      // When keyboard opens, visualViewport.height shrinks
+      setHeight(`${vv.height}px`)
+    }
+    vv.addEventListener('resize', update)
+    update()
+    return () => vv.removeEventListener('resize', update)
+  }, [])
+  return height
 }
 
 export function QueenBee() {
@@ -86,16 +99,16 @@ export function QueenBee() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const incidentId = useCurrentIncidentId()
+  const viewportHeight = useViewportHeight()
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight)
   }, [messages, isThinking])
 
   useEffect(() => {
-    if (isOpen) inputRef.current?.focus()
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 100)
   }, [isOpen])
 
-  // Show slash menu when input starts with /
   useEffect(() => {
     if (input.startsWith('/')) {
       setShowSlashMenu(true)
@@ -157,17 +170,11 @@ export function QueenBee() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      // Check if it's a slash command
       const cmd = SLASH_COMMANDS.find(c => c.command === input.trim().toLowerCase())
-      if (cmd) {
-        handleSlashCommand(cmd)
-      } else {
-        sendMessage()
-      }
+      if (cmd) handleSlashCommand(cmd)
+      else sendMessage()
     }
-    if (e.key === 'Escape') {
-      setShowSlashMenu(false)
-    }
+    if (e.key === 'Escape') setShowSlashMenu(false)
   }
 
   const quickActions = incidentId ? INCIDENT_ACTIONS : GENERAL_ACTIONS
@@ -184,6 +191,7 @@ export function QueenBee() {
             onClick={() => setIsOpen(true)}
             whileHover={{ scale: 1.08, boxShadow: '0 4px 20px var(--amber-glow)' }}
             whileTap={{ scale: 0.95 }}
+            className="queenbee-fab"
             style={{
               position: 'fixed', bottom: 80, right: 20, zIndex: 60,
               width: 52, height: 52, borderRadius: '50%',
@@ -201,10 +209,13 @@ export function QueenBee() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop on mobile */}
-            <div
-              className="hivebot-mobile"
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setIsOpen(false)}
+              className="queenbee-backdrop"
               style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.3)', zIndex: 69 }}
             />
 
@@ -213,8 +224,10 @@ export function QueenBee() {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: '100%', opacity: 0 }}
               transition={{ type: 'spring', damping: 28, stiffness: 350 }}
+              className="queenbee-panel"
               style={{
-                position: 'fixed', top: 0, right: 0, bottom: 0,
+                position: 'fixed', top: 0, right: 0,
+                height: viewportHeight,
                 width: 380, maxWidth: '100vw', zIndex: 70,
                 background: 'var(--surface)', borderLeft: '1px solid var(--border)',
                 display: 'flex', flexDirection: 'column',
@@ -278,6 +291,7 @@ export function QueenBee() {
                 style={{
                   flex: 1, overflowY: 'auto', padding: '12px 16px',
                   display: 'flex', flexDirection: 'column', gap: 10,
+                  WebkitOverflowScrolling: 'touch',
                 }}
               >
                 {messages.map((msg, i) => (
@@ -323,7 +337,7 @@ export function QueenBee() {
                   </motion.div>
                 )}
 
-                {/* Quick action chips — shown after the welcome message */}
+                {/* Quick action chips */}
                 {showQuickActions && !isThinking && messages.length <= 2 && (
                   <motion.div
                     initial={{ opacity: 0, y: 8 }}
@@ -366,7 +380,7 @@ export function QueenBee() {
                     transition={{ duration: 0.15 }}
                     style={{
                       borderTop: '1px solid var(--border)',
-                      background: 'var(--surface)', maxHeight: 240, overflowY: 'auto',
+                      background: 'var(--surface)', maxHeight: 200, overflowY: 'auto',
                       flexShrink: 0,
                     }}
                   >
@@ -385,10 +399,7 @@ export function QueenBee() {
                         onMouseEnter={e => { e.currentTarget.style.background = 'var(--elevated)' }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                       >
-                        <span style={{
-                          fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--amber)',
-                          fontWeight: 600, minWidth: 80,
-                        }}>
+                        <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--amber)', fontWeight: 600, minWidth: 80 }}>
                           {cmd.command}
                         </span>
                         <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -400,10 +411,12 @@ export function QueenBee() {
                 )}
               </AnimatePresence>
 
-              {/* Input */}
+              {/* Input — safe area padding for mobile nav + keyboard */}
               <div style={{
-                padding: '10px 12px', borderTop: '1px solid var(--border)',
+                padding: '10px 12px', paddingBottom: 'max(10px, env(safe-area-inset-bottom, 10px))',
+                borderTop: '1px solid var(--border)',
                 display: 'flex', gap: 8, flexShrink: 0,
+                background: 'var(--surface)',
               }}>
                 <input
                   ref={inputRef}
@@ -411,11 +424,13 @@ export function QueenBee() {
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={incidentId ? `Type / for commands or ask about ${incidentId}...` : 'Type / for commands or ask the Queen...'}
+                  enterKeyHint="send"
                   style={{
                     flex: 1, padding: '8px 12px', borderRadius: 8,
                     border: '1px solid var(--border)', background: 'var(--elevated)',
-                    color: 'var(--text-primary)', fontSize: 13,
+                    color: 'var(--text-primary)', fontSize: 16,
                     fontFamily: 'var(--font-body)', outline: 'none',
+                    WebkitAppearance: 'none',
                   }}
                 />
                 <motion.button
@@ -424,12 +439,12 @@ export function QueenBee() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   style={{
-                    width: 36, height: 36, borderRadius: 8, border: 'none',
+                    width: 40, height: 40, borderRadius: 8, border: 'none',
                     background: input.trim() ? 'var(--amber)' : 'var(--elevated)',
                     color: input.trim() ? '#0A0C0F' : 'var(--text-faint)',
                     cursor: input.trim() ? 'pointer' : 'default',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 16, flexShrink: 0,
+                    fontSize: 18, flexShrink: 0,
                   }}
                 >
                   ↑

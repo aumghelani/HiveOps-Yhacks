@@ -10,7 +10,7 @@
 - [x] Ch 1  — Database schema + Supabase client
   - [x] migrations.sql with all tables
   - [x] get_stage1_matches() SQL function
-  - [x] database.py singleton Supabase client
+  - [x] database.py singleton Supabase client (lazy init, safe when creds empty)
   - [x] All Pydantic schemas (incident, agent_task, approval, memory, lava)
 - [x] Ch 2  — Lava client + agent prompts
   - [x] LavaClient singleton with chat(), chat_json(), chat_with_tools()
@@ -23,43 +23,77 @@
 - [x] Ch 4  — Sandbox + API routes
   - [x] SandboxRunner with 4 mock scenarios
   - [x] pipeline.py — full mock agent orchestration
-  - [x] 17 API endpoints + WebSocket
+  - [x] 17 API endpoints + WebSocket + SSE streaming
+  - [x] POST /api/chat/ — QueenBee chatbot endpoint
   - [x] Full flow verified: webhook → pipeline → approval → resolved
 - [x] Ch 5  — Frontend types + store + hooks
   - [x] All types defined including ApprovalDecision
   - [x] Frontend mock data layer (src/mock/)
   - [x] DemoContext with phase management
+  - [x] Zustand store (incidentStore) for UI state + split view selection
+  - [x] React Query hooks with polling + error backoff
+  - [x] WebSocket hook for live updates
+  - [x] usePageTitle hook for dynamic browser tab titles
 - [x] Ch 6  — Frontend UI components
-  - [x] Hive dot components, ThemeProvider, HiveOps logo
-  - [x] SubTasksPanel, EvidenceDossier, MobileTabBar, AppLayout
+  - [x] Hive dot components (HivePulse, HiveLoader, HiveProgress, HivePattern, HiveDivider)
+  - [x] HiveHoverDots — hover dot clusters on cards
+  - [x] HiveButton — standard button with variants + loading
+  - [x] ThemeProvider, HiveOps logo with hexagon SVG "O"
+  - [x] SubTasksPanel with animated status indicators
+  - [x] EvidenceDossier with 5 sections + progressive disclosure
+  - [x] ConfidenceTrajectory — pure SVG sparkline
+  - [x] IncidentTimeline — Slack-style agent activity chat log
+  - [x] AgentReasoningStream — live typing effect via SSE
+  - [x] IncidentDetailEmbed — embeddable detail for split view
+  - [x] MobileTabBar for responsive layout
+  - [x] AppLayout with sidebar enhancements
 - [x] Ch 7  — Frontend pages + routing
-  - [x] All 5 pages with Framer Motion, dark/light mode, mobile responsive
-  - [x] Renamed to HiveOps everywhere
+  - [x] IncidentsPage — Gmail-style split view on desktop, color-coded tiles
+  - [x] IncidentDetailPage with pipeline, sub-tasks, confidence trajectory, timeline
+  - [x] MemoryBankPage with pattern families and dot progress
+  - [x] PlaybooksPage with expandable steps
+  - [x] AuditLogPage with chronological activity
+  - [x] React Router with nested layout + page transitions
+  - [x] Light/dark mode fully working with CSS variables
+  - [x] Mobile bottom tab bar
+  - [x] Dynamic page titles (Incidents/Memory Bank/Playbooks/Audit Log — HiveOps)
+  - [x] HiveOps amber hexagon favicon
 - [x] Ch 8  — Integration + demo seed
-  - [x] Real API client (src/api/client.ts) with axios
-  - [x] React Query hooks with live polling (2-5s intervals)
-  - [x] WebSocket hook for live incident + sub-ticket updates
-  - [x] Zustand store for UI-only state (celebration, selection)
-  - [x] QueryClientProvider wired into App.tsx
-  - [x] IncidentsPage: real data from useIncidents() + "Trigger Demo" button
-  - [x] IncidentDetailPage: real incident, sub-tickets, evidence, agent logs from hooks
-  - [x] Approval controls wired to real POST /api/approvals/{id}/decide
-  - [x] Celebration animation triggers on real approval success
-  - [x] AppLayout sidebar: live agent count + pending count from real hooks
-  - [x] All pages gracefully fall back to mock data when backend is down
-  - [x] MemoryBank/Playbooks/AuditLog keep mock data (backend routes not needed for demo)
-  - [x] Demo checklist doc (docs/DEMO_CHECKLIST.md)
-  - [x] npm run build passes with 0 TypeScript errors
-  - [x] Full end-to-end verified: trigger → pipeline → sub-tickets → evidence → approve → resolved
+  - [x] Real API client (src/api/client.ts) with env-based URL
+  - [x] React Query hooks with live polling + error backoff (retry: false)
+  - [x] WebSocket hook for live incident updates
+  - [x] All pages wired to real backend with mock fallback on error
+  - [x] DemoTriggerPanel with 7 scenario cards
+  - [x] Approval controls wired to real backend
+  - [x] Celebration animation on approval
+- [x] Post-Ch 8 — Polish + Features
+  - [x] QueenBee chatbot (Lava-powered, context-aware)
+    - [x] Backend: POST /api/chat/ with incident context injection
+    - [x] Smart fallback responses using in-memory data when Lava unavailable
+    - [x] Frontend: floating amber button → slide-in panel
+    - [x] Auto-detects incident from URL or split view selection (Zustand)
+    - [x] Quick action chips (8 incident-specific, 6 general)
+    - [x] Slash commands (/summary, /rootcause, /approve, /risk, etc.)
+    - [x] Mobile keyboard handling via visualViewport API
+    - [x] Safe area padding for mobile nav bar
+  - [x] Gmail-style split view on incidents page
+    - [x] List on left, detail panel slides in on right
+    - [x] Hive dot burst animation on panel open
+    - [x] Color-coded tiles (green=resolved, amber=awaiting, red=rejected, blue=investigating)
+  - [x] Vercel deployment config (vercel.json, env-based API URL)
+  - [x] Render deployment (.python-version pinned to 3.11)
+  - [x] CORS updated for production
+  - [x] Demo checklist (docs/DEMO_CHECKLIST.md)
 
 ## Verification gates — ALL PASSED
 - Prompt 0: uvicorn starts, npm run dev starts, /health returns 200 ✓
-- Ch 1: all tables in migrations.sql, pydantic models import without error ✓
+- Ch 1: migrations.sql complete, pydantic models import without error ✓
 - Ch 2: lava_client importable, all 6 agents importable ✓
 - Ch 3: memory_loader.load_stage_1() returns 4 mock incidents ✓
-- Ch 4: POST /api/incidents/webhook returns 202, pipeline runs in background ✓
-- Ch 4: Full flow: webhook → 6 sub-tickets → evidence → approve → resolved ✓
-- Ch 5: All types compile, mock data layer working ✓
+- Ch 4: POST /api/incidents/webhook returns 202, pipeline runs ✓
+- Ch 5: All hooks compile, store works ✓
 - Ch 6: All components render without prop errors ✓
 - Ch 7: All pages load, routing works, dark/light toggle works ✓
 - Ch 8: Full demo flow end-to-end with real API calls ✓
+- QueenBee: responds with incident context in split view + full page ✓
+- Build: npm run build — 0 TypeScript errors ✓
