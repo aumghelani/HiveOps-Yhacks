@@ -3,6 +3,10 @@
 .claude.json
 .clauderc
 CLAUDE.local.md
+**/CLAUDE.md
+
+# Internal docs (dev-only)
+ops-agent/docs/
 
 # OS
 .DS_Store
