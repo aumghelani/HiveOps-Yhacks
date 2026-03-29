@@ -1,6 +1,9 @@
-"""Incident routes — webhook intake, listing, detail, sub-tickets, evidence, memory, logs."""
+"""Incident routes — webhook intake, listing, detail, sub-tickets, evidence, memory, logs, SSE stream."""
+import asyncio
+import json
 from datetime import datetime, timezone
 from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi.responses import StreamingResponse
 
 from app.schemas import IncidentCreate, IncidentRead, IncidentUpdate
 from app.api.pipeline import (
@@ -134,3 +137,39 @@ async def get_agent_logs(incident_id: str):
         raise HTTPException(status_code=404, detail="Incident not found")
     logs = [l for l in agent_logs_store if l["incident_id"] == incident_id]
     return sorted(logs, key=lambda x: x.get("created_at", ""))
+
+
+@router.get("/{incident_id}/stream/{agent_type}")
+async def stream_agent_reasoning(incident_id: str, agent_type: str):
+    """SSE stream for live agent reasoning — types out the output summary."""
+    async def generate():
+        # Find the most recent log for this agent
+        logs = [l for l in agent_logs_store
+                if l["incident_id"] == incident_id and l["agent_type"] == agent_type]
+        if logs:
+            text = logs[-1].get("output_summary", "") or ""
+            for char in text:
+                yield f"data: {json.dumps({'text': char})}\n\n"
+                await asyncio.sleep(0.018)
+        else:
+            # Simulate thinking while agent is still running
+            phrases = [
+                f"Analyzing {agent_type.replace('_', ' ')} patterns...",
+                "Querying memory bank for similar incidents...",
+                "Cross-referencing service topology...",
+                "Calculating confidence score...",
+            ]
+            for phrase in phrases:
+                for char in phrase:
+                    yield f"data: {json.dumps({'text': char})}\n\n"
+                    await asyncio.sleep(0.02)
+                yield f"data: {json.dumps({'text': chr(10)})}\n\n"
+                await asyncio.sleep(0.3)
+
+        yield f"data: {json.dumps({'done': True})}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )

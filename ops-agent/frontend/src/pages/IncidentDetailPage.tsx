@@ -1,8 +1,9 @@
 // Incident detail page — pipeline, sub-tasks, evidence dossier, agent activity
 import { useParams, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { SubTasksPanel } from '@/components/incident/SubTasksPanel'
 import { EvidenceDossier } from '@/components/incident/EvidenceDossier'
+import { ConfidenceTrajectory } from '@/components/incident/ConfidenceTrajectory'
+import { IncidentTimeline } from '@/components/incident/IncidentTimeline'
 import { HivePulse } from '@/components/hive/HivePulse'
 import { HiveLoader } from '@/components/hive/HiveLoader'
 import { HiveProgress } from '@/components/hive/HiveProgress'
@@ -202,32 +203,21 @@ export function IncidentDetailPage() {
 
       <HiveDivider />
 
+      {/* Confidence trajectory sparkline */}
+      <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px 20px', marginBottom: 8 }}>
+        <ConfidenceTrajectory subTickets={sub_tickets} />
+      </div>
+
+      <HiveDivider />
+
+      {/* Live Agent Activity — Slack-style timeline */}
       {logs.length > 0 && (
         <div>
-          <h3 style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', marginBottom: 12 }}>
-            Live Agent Activity
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {logs.map(log => (
-              <motion.div
-                key={log.log_id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                style={{ borderRadius: 10, border: '1px solid var(--border)', padding: 12 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
-                  <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{log.agent_type}</span>
-                  <span style={{ color: 'var(--text-faint)' }}>·</span>
-                  <span style={{ color: 'var(--text-faint)' }}>{log.step_name}</span>
-                  {log.tokens_used && <span style={{ color: 'var(--text-faint)' }}>· {log.tokens_used} tokens</span>}
-                </div>
-                {log.output_summary && (
-                  <p style={{ fontSize: 13, color: 'var(--text-primary)', marginTop: 6, lineHeight: 1.4 }}>
-                    {log.output_summary}
-                  </p>
-                )}
-              </motion.div>
-            ))}
+          <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--text-faint)', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 12 }}>
+            Live agent activity
+          </div>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 16px' }}>
+            <IncidentTimeline logs={logs} />
           </div>
         </div>
       )}

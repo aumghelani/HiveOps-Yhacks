@@ -1,12 +1,14 @@
 // Incident list page — shows all active and resolved incidents
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { MOCK_INCIDENTS } from '@/mock'
-import { useIncidents, useTriggerDemo } from '@/hooks/useIncidents'
+import { useIncidents } from '@/hooks/useIncidents'
 import { HivePulse } from '@/components/hive/HivePulse'
 import { HiveLoader } from '@/components/hive/HiveLoader'
+import { HiveHoverDots } from '@/components/hive/HiveHoverDots'
 import { HiveDivider } from '@/components/hive/HiveDivider'
 import { HivePattern } from '@/components/hive/HivePattern'
+import { DemoTriggerPanel } from '@/components/layout/DemoTriggerPanel'
 import type { Incident, Severity, IncidentStatus } from '@/types'
 
 const severityColor: Record<Severity, { bg: string; text: string }> = {
@@ -34,61 +36,59 @@ function timeAgo(iso: string): string {
 }
 
 function IncidentRow({ incident, delay }: { incident: Incident; delay: number }) {
-  const isActive = incident.status !== 'resolved'
+  const isActive = incident.status !== 'resolved' && incident.status !== 'rejected'
   const sev = severityColor[incident.severity]
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.2, ease: 'easeOut' }}
-      whileHover={{ y: -3, boxShadow: '0 8px 24px var(--amber-glow)', transition: { duration: 0.15 } }}
-      whileTap={{ scale: 0.98 }}
-    >
-      <Link
-        to={`/incident/${incident.incident_id}`}
-        style={{
-          display: 'block', borderRadius: 10, border: '1px solid var(--border)',
-          padding: 16, textDecoration: 'none', color: 'inherit',
-          transition: 'background 150ms',
-        }}
+    <HiveHoverDots pattern="corner" dotCount={4} dotSize={2.5}>
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay, duration: 0.2, ease: 'easeOut' }}
+        whileHover={{ y: -3, boxShadow: '0 8px 24px var(--amber-glow)', transition: { duration: 0.15 } }}
+        whileTap={{ scale: 0.98 }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, minWidth: 0 }}>
-            <span style={{
-              flexShrink: 0, borderRadius: 4, padding: '2px 6px',
-              fontSize: 11, fontWeight: 700, background: sev.bg, color: sev.text,
-            }}>
-              {incident.severity}
-            </span>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-faint)' }}>
-                  {incident.incident_id}
-                </span>
-                <HivePulse variant={statusPulse[incident.status]} pulse={isActive} size={5} />
+        <Link
+          to={`/incident/${incident.incident_id}`}
+          style={{
+            display: 'block', borderRadius: 10, border: '1px solid var(--border)',
+            padding: 16, textDecoration: 'none', color: 'inherit',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, minWidth: 0 }}>
+              <span style={{ flexShrink: 0, borderRadius: 4, padding: '2px 6px', fontSize: 11, fontWeight: 700, background: sev.bg, color: sev.text }}>
+                {incident.severity}
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--text-faint)' }}>
+                    {incident.incident_id}
+                  </span>
+                  <HivePulse variant={statusPulse[incident.status]} pulse={isActive} size={5} />
+                  <span style={{ fontSize: 10, color: 'var(--text-faint)', background: 'var(--elevated)', padding: '1px 6px', borderRadius: 4 }}>
+                    {statusLabel[incident.status]}
+                  </span>
+                </div>
+                <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginTop: 4 }}>
+                  {incident.title}
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
+                  {incident.service} · {timeAgo(incident.created_at)}
+                </p>
               </div>
-              <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--text-primary)', marginTop: 4 }}>
-                {incident.title}
-              </p>
-              <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>
-                {incident.service} · {statusLabel[incident.status]} · {timeAgo(incident.created_at)}
-              </p>
             </div>
+            <span style={{ fontSize: 12, color: 'var(--text-faint)', flexShrink: 0 }}>{incident.source}</span>
           </div>
-          <span style={{ fontSize: 12, color: 'var(--text-faint)', flexShrink: 0 }}>{incident.source}</span>
-        </div>
-      </Link>
-    </motion.div>
+        </Link>
+      </motion.div>
+    </HiveHoverDots>
   )
 }
 
 export function IncidentsPage() {
   const { data: liveData = [], isLoading, isError } = useIncidents()
-  const triggerDemo = useTriggerDemo()
-  const navigate = useNavigate()
 
-  // Fallback to mock data when backend is unavailable
   const incidents = isError ? MOCK_INCIDENTS : liveData
   const active = incidents.filter(i => i.status !== 'resolved')
   const resolved = incidents.filter(i => i.status === 'resolved')
@@ -99,12 +99,6 @@ export function IncidentsPage() {
     </div>
   )
 
-  const handleTrigger = () => {
-    triggerDemo.mutate(undefined, {
-      onSuccess: (data) => navigate(`/incident/${data.incident_id}`),
-    })
-  }
-
   return (
     <div style={{ padding: 24, maxWidth: 860 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -114,18 +108,7 @@ export function IncidentsPage() {
             {active.length} active · {resolved.length} resolved
           </p>
         </div>
-        <button
-          onClick={handleTrigger}
-          disabled={triggerDemo.isPending}
-          style={{
-            padding: '8px 16px', borderRadius: 8, border: 'none',
-            background: 'var(--amber)', color: '#fff', fontSize: 13,
-            fontWeight: 600, cursor: triggerDemo.isPending ? 'wait' : 'pointer',
-            fontFamily: 'var(--font-body)', display: 'flex', alignItems: 'center', gap: 8,
-          }}
-        >
-          {triggerDemo.isPending ? <HiveLoader size="sm" /> : 'Trigger Demo Incident'}
-        </button>
+        <DemoTriggerPanel />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -138,10 +121,7 @@ export function IncidentsPage() {
 
       {resolved.length > 0 && (
         <>
-          <h2 style={{
-            fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em',
-            color: 'var(--text-faint)', marginBottom: 8,
-          }}>
+          <h2 style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-faint)', marginBottom: 8 }}>
             Resolved
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -153,10 +133,7 @@ export function IncidentsPage() {
       )}
 
       {incidents.length === 0 && (
-        <div style={{
-          position: 'relative', borderRadius: 12, border: '1px solid var(--border)',
-          padding: 48, textAlign: 'center',
-        }}>
+        <div style={{ position: 'relative', borderRadius: 12, border: '1px solid var(--border)', padding: 48, textAlign: 'center' }}>
           <HivePattern opacity={0.04} />
           <p style={{ position: 'relative', fontSize: 13, color: 'var(--text-muted)' }}>No incidents reported</p>
         </div>
