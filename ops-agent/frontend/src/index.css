@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+/* Enable class-based dark mode for Tailwind v4 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --animate-shimmer: shimmer 1.5s infinite;
+  --animate-shimmer-scan: shimmer-scan 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+@keyframes shimmer-scan {
+  0%   { top: -2px; opacity: 0; }
+  10%  { opacity: 0.4; }
+  90%  { opacity: 0.4; }
+  100% { top: 100%; opacity: 0; }
+}
+
+:root {
+  --bg:           #F7F4EF;
+  --surface:      #FFFFFF;
+  --elevated:     #FDF9F3;
+  --border:       #E8E3DC;
+  --border-strong: #D4CEC6;
+  --text-primary: #1A1612;
+  --text-muted:   #6B6560;
+  --text-faint:   #A09890;
+  --amber:        #C47A10;
+  --amber-deep:   #92580A;
+  --amber-bright: #E8A020;
+  --amber-glow:   rgba(196,122,16,0.12);
+  --blue:         #2563EB;
+  --success:      #16A34A;
+  --warning:      #D97706;
+  --danger:       #DC2626;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+.dark {
+  --bg:           #0A0C0F;
+  --surface:      #111318;
+  --elevated:     #181C24;
+  --border:       #1E2228;
+  --border-strong: #252B35;
+  --text-primary: #F1EEE8;
+  --text-muted:   #8A8478;
+  --text-faint:   #4A4640;
+  --amber:        #E8A020;
+  --amber-deep:   #C47A10;
+  --amber-bright: #F0C050;
+  --amber-glow:   rgba(232,160,32,0.12);
+  --blue:         #3B82F6;
+  --success:      #22C55E;
+  --warning:      #F59E0B;
+  --danger:       #EF4444;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  transition: background 300ms ease, color 300ms ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+code, pre, .mono {
+  font-family: var(--font-mono);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Sidebar visibility */
+.sidebar-wrapper {
+  display: flex;
+  flex-shrink: 0;
+}
+
+.mobile-tab-bar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .sidebar-wrapper {
+    display: none;
+  }
+  .mobile-tab-bar {
+    display: flex;
+  }
+  main {
+    padding-bottom: 72px !important;
+  }
+  .agent-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .pipeline-horizontal {
+    display: none !important;
+  }
+  .pipeline-vertical {
+    display: flex !important;
+  }
+}
+
+/* Shimmer scan line for running agent cards */
+.agent-card-running {
+  position: relative;
+  overflow: hidden;
+}
+.agent-card-running::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  animation: shimmer-scan 2s linear infinite;
+}

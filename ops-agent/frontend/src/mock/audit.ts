@@ -1,0 +1,66 @@
+// Audit log mock data
+
+import type { AuditEntry } from '@/types'
+
+export const MOCK_AUDIT_ENTRIES: AuditEntry[] = [
+  {
+    log_id: 'LOG-001',
+    incident_id: 'INC-3041',
+    incident_title: 'Payment service error rate spike',
+    agent_type: 'triage',
+    step_name: 'classify_severity',
+    output_summary: 'P1 confirmed. causal_sig: db_pool_exhausted',
+    tokens_used: 312,
+    created_at: new Date(Date.now() - 11 * 60000).toISOString(),
+  },
+  {
+    log_id: 'LOG-002',
+    incident_id: 'INC-3041',
+    incident_title: 'Payment service error rate spike',
+    agent_type: 'root_cause',
+    step_name: 'scan_logs',
+    output_summary: 'ConnectionPoolExhausted: 1847 occurrences. First seen 14:22:03.',
+    tokens_used: 891,
+    created_at: new Date(Date.now() - 8 * 60000).toISOString(),
+  },
+  {
+    log_id: 'LOG-010',
+    incident_id: 'INC-3038',
+    incident_title: 'Config push broke auth service',
+    agent_type: 'triage',
+    step_name: 'classify_severity',
+    output_summary: 'P2. Config regression. Owner: platform-infra.',
+    tokens_used: 287,
+    created_at: new Date(Date.now() - 44 * 60000).toISOString(),
+  },
+  {
+    log_id: 'LOG-011',
+    incident_id: 'INC-3038',
+    incident_title: 'Config push broke auth service',
+    agent_type: 'root_cause',
+    step_name: 'scan_logs',
+    output_summary: 'JWT_SECRET env var missing after config deploy v1.4.3.',
+    tokens_used: 654,
+    created_at: new Date(Date.now() - 43 * 60000).toISOString(),
+  },
+  {
+    log_id: 'LOG-012',
+    incident_id: 'INC-3038',
+    incident_title: 'Config push broke auth service',
+    agent_type: 'remediation',
+    step_name: 'select_playbook',
+    output_summary: 'Matched playbook PB-002: Config Rollback. Confidence 96%.',
+    tokens_used: 423,
+    created_at: new Date(Date.now() - 41 * 60000).toISOString(),
+  },
+  {
+    log_id: 'LOG-013',
+    incident_id: 'INC-3038',
+    incident_title: 'Config push broke auth service',
+    agent_type: 'verification',
+    step_name: 'sandbox_run',
+    output_summary: 'Sandbox pass. 0 errors in 60s. Health check green.',
+    tokens_used: 201,
+    created_at: new Date(Date.now() - 39 * 60000).toISOString(),
+  },
+]
