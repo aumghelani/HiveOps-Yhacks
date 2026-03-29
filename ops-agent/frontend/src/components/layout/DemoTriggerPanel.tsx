@@ -1,5 +1,5 @@
 // Demo trigger panel — slide-down with 7 scenario cards
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { HiveButton } from '@/components/hive/HiveButton'
@@ -62,9 +62,23 @@ export function DemoTriggerPanel() {
     }
   }
 
+  const btnRef = useRef<HTMLDivElement>(null)
+  const [panelPos, setPanelPos] = useState({ top: 0, right: 0 })
+
+  const handleToggle = useCallback(() => {
+    if (!isOpen && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setPanelPos({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      })
+    }
+    setIsOpen(prev => !prev)
+  }, [isOpen])
+
   return (
-    <div style={{ position: 'relative' }}>
-      <HiveButton variant="primary" size="sm" onClick={() => setIsOpen(prev => !prev)}>
+    <div ref={btnRef} style={{ position: 'relative' }}>
+      <HiveButton variant="primary" size="sm" onClick={handleToggle}>
         Trigger Demo
       </HiveButton>
 
@@ -78,10 +92,15 @@ export function DemoTriggerPanel() {
               exit={{ opacity: 0, y: -8, scale: 0.97 }}
               transition={{ duration: 0.2, ease: 'easeOut' }}
               style={{
-                position: 'absolute', top: '100%', right: 0, marginTop: 8,
-                width: 400, background: 'var(--surface)', border: '1px solid var(--border)',
+                position: 'fixed',
+                top: panelPos.top,
+                right: Math.max(panelPos.right, 12),
+                width: 400, maxWidth: 'calc(100vw - 24px)',
+                maxHeight: `calc(100vh - ${panelPos.top + 16}px)`,
+                background: 'var(--surface)', border: '1px solid var(--border)',
                 borderRadius: 12, zIndex: 50,
                 boxShadow: '0 16px 48px rgba(0,0,0,0.3)',
+                display: 'flex', flexDirection: 'column',
               }}
             >
               <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between' }}>
@@ -91,7 +110,7 @@ export function DemoTriggerPanel() {
                 <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>{SCENARIOS.length} available</span>
               </div>
 
-              <div className="hive-scrollbar" style={{ maxHeight: 420, overflowY: 'auto' }}>
+              <div className="hive-scrollbar" style={{ flex: 1, overflowY: 'auto' }}>
                 {SCENARIOS.map((s, i) => (
                   <motion.button
                     key={s.key}

@@ -159,7 +159,7 @@ export function AppLayout() {
           width: 36, height: 36, borderRadius: '50%',
           background: 'var(--surface)', border: '1px solid var(--border)',
           cursor: 'pointer', fontSize: 14,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          alignItems: 'center', justifyContent: 'center',
           boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         }}
         aria-label="Toggle theme"
