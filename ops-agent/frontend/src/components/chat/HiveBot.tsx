@@ -68,23 +68,6 @@ function useCurrentIncidentId(): string | undefined {
   return match?.[1] ?? storeId ?? undefined
 }
 
-// Track visual viewport height for mobile keyboard handling
-function useViewportHeight() {
-  const [height, setHeight] = useState('100%')
-  useEffect(() => {
-    const vv = window.visualViewport
-    if (!vv) return
-    const update = () => {
-      // When keyboard opens, visualViewport.height shrinks
-      setHeight(`${vv.height}px`)
-    }
-    vv.addEventListener('resize', update)
-    update()
-    return () => vv.removeEventListener('resize', update)
-  }, [])
-  return height
-}
-
 export function QueenBee() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
@@ -99,7 +82,6 @@ export function QueenBee() {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const incidentId = useCurrentIncidentId()
-  const viewportHeight = useViewportHeight()
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight)
@@ -226,8 +208,7 @@ export function QueenBee() {
               transition={{ type: 'spring', damping: 28, stiffness: 350 }}
               className="queenbee-panel"
               style={{
-                position: 'fixed', top: 0, right: 0,
-                height: viewportHeight,
+                position: 'fixed', top: 0, right: 0, bottom: 0,
                 width: 380, maxWidth: '100vw', zIndex: 70,
                 background: 'var(--surface)', borderLeft: '1px solid var(--border)',
                 display: 'flex', flexDirection: 'column',

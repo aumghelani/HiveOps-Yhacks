@@ -101,9 +101,15 @@ code, pre, .mono {
     display: none;
   }
   .queenbee-backdrop { display: block !important; }
-  /* On mobile, the FAB sits above the nav bar */
+  /* On mobile, everything clears the 60px nav bar */
   .queenbee-fab {
     bottom: 80px !important;
+  }
+  .queenbee-panel {
+    bottom: 60px !important;
+    height: auto !important;
+    top: 0 !important;
+    border-radius: 0 0 0 12px;
   }
   .mobile-tab-bar {
     display: flex;
