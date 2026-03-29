@@ -5,6 +5,10 @@
 
 Built for YHacks 2026 — [hiveops.us](https://hiveops.us)
 
+![WhatsApp Image 2026-03-29 at 8 54 10 AM](https://github.com/user-attachments/assets/adb215fe-6511-4d30-af96-a77c589b8dbc)
+<img width="1115" height="723" alt="Screenshot 2026-03-29 092042" src="https://github.com/user-attachments/assets/def8d5a2-db37-44dd-a3b8-0fd519a81eca" />
+![WhatsApp Image 2026-03-29 at 8 54 38 AM](https://github.com/user-attachments/assets/a1213ce5-34b0-4bbf-b902-19b11f928965)
+
 ---
 
 ## What is HiveOps?
